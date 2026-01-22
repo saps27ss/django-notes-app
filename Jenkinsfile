@@ -41,8 +41,8 @@ pipeline {
     stage('Deploy to EKS') {
       steps {
         sh '''
-        sed -i "s|image:.*|image: $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:$IMAGE_TAG|" k8s/deployment.yaml
-        kubectl apply -f k8s/deployment.yaml
+        sed -i "s|image:.*|image: $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:$IMAGE_TAG|" k8s/deployment.yml
+        kubectl apply -f k8s/deployment.yml
         '''
       }
     }

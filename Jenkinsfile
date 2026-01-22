@@ -10,12 +10,6 @@ pipeline {
 
   stages {
 
-    stage('Checkout') {
-      steps {
-        git 'https://github.com/saps27ss/django-notes-app.git'
-      }
-    }
-
     stage('Build Image') {
       steps {
         sh 'docker build -t $ECR_REPO:$IMAGE_TAG .'
@@ -54,4 +48,3 @@ pipeline {
     }
   }
 }
-

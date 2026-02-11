@@ -2,49 +2,38 @@ pipeline {
   agent { label 'saps-Agent' }
 
   environment {
-    AWS_REGION = "us-west-1"
-    ECR_REPO   = "django-notes-app"
-    ACCOUNT_ID = "138256873419"
-    IMAGE_TAG  = "v${BUILD_NUMBER}"
+    IMAGE_NAME = "django-notes-app"
+    CONTAINER_NAME = "django-notes-container"
+    PORT = "8000"
   }
 
   stages {
 
-    stage('Build Image') {
+    stage('Build Docker Image') {
       steps {
-        sh 'docker build -t $ECR_REPO:$IMAGE_TAG .'
+        sh 'docker build -t $IMAGE_NAME:latest .'
       }
     }
 
-    stage('Login to ECR') {
+    stage('Stop Old Container') {
       steps {
         sh '''
-        aws ecr get-login-password --region $AWS_REGION \
-          | docker login --username AWS --password-stdin \
-          $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+        docker stop $CONTAINER_NAME || true
+        docker rm $CONTAINER_NAME || true
         '''
       }
     }
 
-    stage('Tag & Push') {
+    stage('Run New Container') {
       steps {
         sh '''
-        docker tag $ECR_REPO:$IMAGE_TAG \
-          $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:$IMAGE_TAG
-
-        docker push \
-          $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:$IMAGE_TAG
+        docker run -d \
+        --name $CONTAINER_NAME \
+        -p 8000:8000 \
+        $IMAGE_NAME:latest
         '''
       }
     }
 
-    stage('Deploy to EKS') {
-      steps {
-        sh '''
-        sed -i "s|image:.*|image: $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:$IMAGE_TAG|" k8s/deployment.yml
-        kubectl apply -f k8s/deployment.yml
-        '''
-      }
-    }
   }
 }

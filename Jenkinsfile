@@ -1,5 +1,5 @@
 pipeline {
-  agent { label 'saps' }
+  agent { label 'saps-Agent' }
 
   environment {
     AWS_REGION = "us-west-1"

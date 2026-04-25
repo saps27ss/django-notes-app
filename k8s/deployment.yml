@@ -18,5 +18,5 @@ spec:
         - name: django
           image: 138256873419.dkr.ecr.us-west-1.amazonaws.com/django-notes-app:v1
           ports:
-            - containerPort: 8000
+            - containerPort: 8100
 
